@@ -1,0 +1,28 @@
+---
+- block:
+  - name: apt | Ensure Google's Linux Signing Key is present
+    apt_key:
+      url: https://dl-ssl.google.com/linux/linux_signing_key.pub
+      state: present
+  - name: apt | Add Google Chrome Repository
+    apt_repository:
+      repo: 'deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main'
+      state: present
+      update_cache: True
+  when: ansible_pkg_mgr == 'apt'
+
+- block:
+  - name: dnf | Add Google Chrome Repository
+    yum_repository:
+      name: google-chrome
+      description: Google Chrome RPM Repository
+      baseurl: http://dl.google.com/linux/chrome/rpm/stable/x86_64
+      gpgcheck: True
+      gpgkey: http://dl-ssl.google.com/linux/linux_signing_key.pub
+      state: present
+  when: ansible_pkg_mgr == 'dnf'
+
+- name: Install Google Chrome
+  package:
+    name: google-chrome-{{channel}}
+    state: present
